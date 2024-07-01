@@ -1,25 +1,6 @@
 import argparse
-parser = argparse.ArgumentParser()
-parser.add_argument("letters")
-parser.add_argument("-x", action="store", default="99", help="Double word location (row, column) eg `-x 52`")
-parser.add_argument("-d", action="store", default="99", help="Double letter location (row, column) eg `-d 34`")
-parser.add_argument("-t", action="store", default="99", help="Triple bonus location (row, column) eg `-t 11`")
 
-args = parser.parse_args()
-
-board = [c.upper() for c in list(args.letters)]
-x2 = (int(args.x[:1]), int(args.x[1:]))
-dl = (int(args.d[:1]), int(args.d[1:]))
-tl = (int(args.t[:1]), int(args.t[1:]))
-
-def init_game():
-    pos: list[tuple] = []
-    for i in range(1, 6):
-        for j in range(1, 6):
-            pos.append((i, j))
-
-    game = dict(zip(pos, board))
-
+def init_consts():
     WORDS: list[set[str]] = []
     WORDS.append(set())
     with open("dictionary.txt", "r") as f:
@@ -61,9 +42,19 @@ def init_game():
         "Z": 8 
     }
 
+    return WORDS, SCORES
+
+def init_game(board):
+    pos: list[tuple] = []
+    for i in range(1, 6):
+        for j in range(1, 6):
+            pos.append((i, j))
+
+    game = dict(zip(pos, board))
+
     possible_words = []
 
-    return WORDS, SCORES, game, possible_words
+    return game, possible_words
 
 def find_words(game: dict[tuple, str], position: tuple[int], word: str, score: int, path: list[tuple]) -> None:
     path.append(position)
@@ -100,9 +91,30 @@ def find_words(game: dict[tuple, str], position: tuple[int], word: str, score: i
     else:
         return
 
-WORDS, SCORES, game, possible_words = init_game()
-for position in game:
-    find_words(game, position, "", 0, [])
+WORDS, SCORES = init_consts()
 
-best = max(possible_words, key=lambda x: x[1])
-print(f"\nBest word: {best[0].upper()} | Score: {best[1]} | Path: {best[2]}")
+parser = argparse.ArgumentParser()
+parser.add_argument("letters", nargs=25)
+parser.add_argument("-x", action="store", default="99", help="Double word location (row, column) eg `-x 52`")
+parser.add_argument("-d", action="store", default="99", help="Double letter location (row, column) eg `-d 34`")
+parser.add_argument("-t", action="store", default="99", help="Triple bonus location (row, column) eg `-t 11`")
+
+while True:
+    inp = input("Enter arguments: ").split(" ")
+    inp2 = list(inp[0])
+    inp2.extend(inp[1:])
+
+    args = parser.parse_args(inp2)
+
+    board = [c.upper() for c in list(args.letters)]
+    x2 = (int(args.x[:1]), int(args.x[1:]))
+    dl = (int(args.d[:1]), int(args.d[1:]))
+    tl = (int(args.t[:1]), int(args.t[1:]))
+
+    game, possible_words = init_game(board)
+
+    for position in game:
+        find_words(game, position, "", 0, [])
+
+    best = max(possible_words, key=lambda x: x[1])
+    print(f"\nBest word: {best[0].upper()} | Score: {best[1]} | Path: {best[2]}\n")
