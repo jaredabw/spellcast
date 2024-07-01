@@ -1,9 +1,9 @@
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("letters", nargs=25)
-parser.add_argument("-x", action="store", default="99", help="Double word location (row, column) eg `-x 42`")
+parser.add_argument("-x", action="store", default="99", help="Double word location (row, column) eg `-x 52`")
 parser.add_argument("-d", action="store", default="99", help="Double letter location (row, column) eg `-d 34`")
-parser.add_argument("-t", action="store", default="99", help="Triple bonus location (row, column) eg `-t 01`")
+parser.add_argument("-t", action="store", default="99", help="Triple bonus location (row, column) eg `-t 11`")
 
 args = parser.parse_args()
 
@@ -14,8 +14,8 @@ tl = (int(args.t[:1]), int(args.t[1:]))
 
 def init_game():
     pos: list[tuple] = []
-    for i in range(int(len(board)**0.5)):
-        for j in range(int(len(board)**0.5)):
+    for i in range(1, 6):
+        for j in range(1, 6):
             pos.append((i, j))
 
     game = dict(zip(pos, board))
@@ -92,7 +92,7 @@ def find_words(game: dict[tuple, str], position: tuple[int], word: str, score: i
         surroundings = []
         for i in (-1, 0, 1):
             for j in (-1, 0, 1):
-                if 0 <= r + i <= 4 and 0 <= c + j <= 4 and not (i == 0 and j == 0) and not (r + i, c + j) in path:
+                if 1 <= r + i <= 5 and 1 <= c + j <= 5 and not (i == 0 and j == 0) and not (r + i, c + j) in path:
                     surroundings.append((r + i, c + j))
 
         for pos in surroundings:
