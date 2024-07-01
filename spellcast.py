@@ -3,7 +3,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("letters", nargs=25)
 parser.add_argument("-x", action="store", default="99", help="Double word location (row, column) eg `-x 42`")
 parser.add_argument("-d", action="store", default="99", help="Double letter location (row, column) eg `-d 34`")
-parser.add_argument("-t", action="store", default="99", help="Triple bonus location (row, column) eg `-t 12`")
+parser.add_argument("-t", action="store", default="99", help="Triple bonus location (row, column) eg `-t 01`")
 
 args = parser.parse_args()
 
