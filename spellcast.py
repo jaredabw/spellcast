@@ -1,13 +1,13 @@
 import argparse
 parser = argparse.ArgumentParser()
-parser.add_argument("letters", nargs=25)
+parser.add_argument("letters")
 parser.add_argument("-x", action="store", default="99", help="Double word location (row, column) eg `-x 52`")
 parser.add_argument("-d", action="store", default="99", help="Double letter location (row, column) eg `-d 34`")
 parser.add_argument("-t", action="store", default="99", help="Triple bonus location (row, column) eg `-t 11`")
 
 args = parser.parse_args()
 
-board = [c.upper() for c in args.letters]
+board = [c.upper() for c in list(args.letters)]
 x2 = (int(args.x[:1]), int(args.x[1:]))
 dl = (int(args.d[:1]), int(args.d[1:]))
 tl = (int(args.t[:1]), int(args.t[1:]))
