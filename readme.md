@@ -14,5 +14,3 @@ The position of the bonuses, row by column, with the top left corner being 11 an
 -x: Location of 2x bonus  
 -d: Location of double letter bonus  
 -t: Location of triple letter bonus
-
-Test
