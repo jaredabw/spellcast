@@ -1,120 +1,107 @@
-import argparse
+class Solver:
+    def __init__(self, letters, bonuses):
+        self.WORDS, self.SCORES = self.init_consts()
+        self.game, self.possible_words = self.init_game(letters)
+        self.x2 = bonuses["x2"]
+        self.dl = bonuses["dl"]
+        self.tl = bonuses["tl"]
 
-def init_consts():
-    WORDS: list[set[str]] = []
-    WORDS.append(set())
-    with open("dictionary.txt", "r") as f:
-        for line in f:
-            WORDS[0].add(line.strip().lower())
-
-    for i in range(1, 26):
+    def init_consts(self):
+        WORDS: list[set[str]] = []
         WORDS.append(set())
-        for word in WORDS[0]:
-            if len(word) >= i:
-                WORDS[i].add(word[:i])
+        with open("dictionary.txt", "r") as f:
+            for line in f:
+                WORDS[0].add(line.strip().lower())
 
-    SCORES = {
-        "A": 1,
-        "B": 4,
-        "C": 5,
-        "D": 3,
-        "E": 1,
-        "F": 5,
-        "G": 3,
-        "H": 4,
-        "I": 1,
-        "J": 7,
-        "K": 6,
-        "L": 3,
-        "M": 4,
-        "N": 2,
-        "O": 1,
-        "P": 4,
-        "Q": 8,
-        "R": 2,
-        "S": 2,
-        "T": 2,
-        "U": 4,
-        "V": 5,
-        "W": 5,
-        "X": 7,
-        "Y": 4,
-        "Z": 8 
-    }
+        for i in range(1, 26):
+            WORDS.append(set())
+            for word in WORDS[0]:
+                if len(word) >= i:
+                    WORDS[i].add(word[:i])
 
-    return WORDS, SCORES
+        SCORES = {
+            "A": 1,
+            "B": 4,
+            "C": 5,
+            "D": 3,
+            "E": 1,
+            "F": 5,
+            "G": 3,
+            "H": 4,
+            "I": 1,
+            "J": 7,
+            "K": 6,
+            "L": 3,
+            "M": 4,
+            "N": 2,
+            "O": 1,
+            "P": 4,
+            "Q": 8,
+            "R": 2,
+            "S": 2,
+            "T": 2,
+            "U": 4,
+            "V": 5,
+            "W": 5,
+            "X": 7,
+            "Y": 4,
+            "Z": 8 
+        }
 
-def init_game(board):
-    pos: list[tuple] = []
-    for i in range(1, 6):
-        for j in range(1, 6):
-            pos.append((i, j))
+        return WORDS, SCORES
 
-    game = dict(zip(pos, board))
+    def init_game(self, letters: str):
+        pos: list[tuple] = []
+        for i in range(1, 6):
+            for j in range(1, 6):
+                pos.append((i, j))
 
-    possible_words = []
+        game = dict(zip(pos, letters))
 
-    return game, possible_words
+        possible_words = []
 
-def find_words(game: dict[tuple, str], position: tuple[int], word: str, score: int, path: list[tuple]) -> None:
-    path.append(position)
+        return game, possible_words
 
-    letter = game[position]
-    word += letter.lower()
+    def find_words(self, position: tuple[int], word: str, score: int, path: list[tuple]) -> None:
+        path.append(position)
 
-    if dl == position:
-        score += 2 * SCORES[letter]
-    elif tl == position:
-        score += 3 * SCORES[letter]
-    else:
-        score += SCORES[letter]
+        letter = self.game[position]
+        word += letter.lower()
 
-    if word in WORDS[0]: # base case
-        finalscore = score
-        if x2 in path: # double word bonus
-            finalscore = 2 * score
-        if len(word) >= 6: # long word bonus
-            finalscore += 10
-        possible_words.append((word, finalscore, path))
-    
-    if word in WORDS[len(word)] and len(word) < 25: # if it could be the start of a word
-        # check surroundings
-        r, c = position
-        surroundings = []
-        for i in (-1, 0, 1):
-            for j in (-1, 0, 1):
-                if 1 <= r + i <= 5 and 1 <= c + j <= 5 and not (i == 0 and j == 0) and not (r + i, c + j) in path:
-                    surroundings.append((r + i, c + j))
+        if self.dl == position:
+            score += 2 * self.SCORES[letter]
+        elif self.tl == position:
+            score += 3 * self.SCORES[letter]
+        else:
+            score += self.SCORES[letter]
 
-        for pos in surroundings:
-            find_words(game, pos, word, score, path.copy())
-    else:
-        return
+        if word in self.WORDS[0]: # base case
+            finalscore = score
+            if self.x2 in path: # double word bonus
+                finalscore = 2 * score
+            if len(word) >= 6: # long word bonus
+                finalscore += 10
+            self.possible_words.append((word, finalscore, path))
+        
+        if word in self.WORDS[len(word)] and len(word) < 25: # if it could be the start of a word
+            # check surroundings
+            r, c = position
+            surroundings = []
+            for i in (-1, 0, 1):
+                for j in (-1, 0, 1):
+                    if 1 <= r + i <= 5 and 1 <= c + j <= 5 and not (i == 0 and j == 0) and not (r + i, c + j) in path:
+                        surroundings.append((r + i, c + j))
 
-WORDS, SCORES = init_consts()
+            for pos in surroundings:
+                self.find_words(pos, word, score, path.copy())
+        else:
+            return
 
-parser = argparse.ArgumentParser()
-parser.add_argument("letters", nargs=25)
-parser.add_argument("-x", action="store", default="99", help="Double word location (row, column) eg `-x 52`")
-parser.add_argument("-d", action="store", default="99", help="Double letter location (row, column) eg `-d 34`")
-parser.add_argument("-t", action="store", default="99", help="Triple bonus location (row, column) eg `-t 11`")
+    def solve(self):
+        for pos in self.game:
+            self.find_words(pos, "", 0, [])
 
-while True:
-    inp = input("Enter arguments: ").split(" ")
-    inp2 = list(inp[0])
-    inp2.extend(inp[1:])
+    def find_best(self):
+        best = max(sorted(self.possible_words, key=lambda x: x[1], reverse=True), key=lambda x: x[1])
+        return best
 
-    args = parser.parse_args(inp2)
-
-    board = [c.upper() for c in list(args.letters)]
-    x2 = (int(args.x[:1]), int(args.x[1:]))
-    dl = (int(args.d[:1]), int(args.d[1:]))
-    tl = (int(args.t[:1]), int(args.t[1:]))
-
-    game, possible_words = init_game(board)
-
-    for position in game:
-        find_words(game, position, "", 0, [])
-
-    best = max(possible_words, key=lambda x: x[1])
-    print(f"\nBest word: {best[0].upper()} | Score: {best[1]} | Path: {best[2]}\n")

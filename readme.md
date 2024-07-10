@@ -4,7 +4,8 @@ Does not take into account anything to do with crystals, such as swaps or shuffl
 
 # Example Usage
 
-py spellcast.py ABCDEFGHIJKLMNOPQRSTUVWXY -x 11 -d 16 -t 43
+py spellcast.py
+ABCDEFGHIJKLMNOPQRSTUVWXY -x 11 -d 16 -t 43
 
 Arguments:  
 The board layout, left to right, top to bottom. 25 letters exactly. Uppercase or lowercase  
