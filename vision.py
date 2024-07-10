@@ -102,5 +102,15 @@ def parse_game(file_path):
 
     return plain_letters, bonuses
 
+def draw_path(file_path, path):
+    im = cv2.imread(file_path)
+
+    scale = im.shape[0]//6
+    path = [(int(y*scale), int(x*scale)) for x, y in path]
+    for i in range(len(path) - 1):
+        cv2.line(im, path[i], path[i+1], (0, 0, 255), 10)
+
+    cv2.imwrite("img/path.png", im)
+
 if __name__ == "__main__":
     print(parse_game("img/image.png"))
