@@ -102,6 +102,4 @@ class Solver:
             self.find_words(pos, "", 0, [])
 
     def find_best(self):
-        best = max(sorted(self.possible_words, key=lambda x: x[1], reverse=True), key=lambda x: x[1])
-        return best
-
+        return max(sorted(self.possible_words, key=lambda x: x[1], reverse=True), key=lambda x: x[1])
