@@ -75,7 +75,7 @@ class Solver:
         else:
             score += self.SCORES[letter]
 
-        if word in self.WORDS[0]: # base case
+        if word in self.WORDS[0] and len(word) > 1: # base case
             finalscore = score
             if self.x2 in path: # double word bonus
                 finalscore = 2 * score
