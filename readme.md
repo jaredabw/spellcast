@@ -6,7 +6,9 @@ Does not take into account anything to do with crystals, such as swaps or shuffl
 
 ## Requirements
 cv2 (opencv-python)  
-pytesseract (add the .exe to your PATH)
+pytesseract (add the .exe to your PATH)  
+  
+For video generation: ffmpeg installed
 
 ## Usage
 
