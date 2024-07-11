@@ -98,6 +98,7 @@ class Solver:
             return
 
     def solve(self):
+        print("Solving...")
         for pos in self.game:
             self.find_words(pos, "", 0, [])
 
