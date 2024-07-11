@@ -36,8 +36,6 @@ def parse_game(im):
     outlier_i = np.where(z > threshold)[0]
     ##
 
-    mean = np.mean(areas)
-
     xywh = [cv2.boundingRect(c) for c in contours]
 
     for i, _ in enumerate(contours):
@@ -48,14 +46,13 @@ def parse_game(im):
         if np.abs(w - h) > 0.2*w:
             continue
 
-        s = int(0.22*w)
-        si = int(0.08*w) + s
+        s = int(0.15*w)
+        si = int(0.05*w) + s
 
-        x_nudge = int(0.05*w)
-        if np.abs(areas[i] - mean) > 0.1*mean:
-            x_nudge = -int(0.1*w)
+        x_nudge = -int(0.1*w)
+        y_nudge = -int(0.2*h)
 
-        cropped_img = im_bw[y+s:y+h-s, x+si-x_nudge:x+w-si]
+        cropped_img = im_bw[y+s-y_nudge:y+h-s, x+si-x_nudge:x+w-si]
 
         dilated = cv2.dilate(cropped_img, dilate_kernel)
 
@@ -108,15 +105,51 @@ def parse_game(im):
 
     return plain_letters, bonuses
 
-def draw_path(im, path):
-    scale = im.shape[0]//6
-    path = [(int(y*scale), int(x*scale)) for x, y in path]
-    for i in range(len(path) - 1):
-        cv2.line(im, path[i], path[i+1], (0, 0, 255), 10)
+def draw_path(im, path, return_im=False, y_offset=0):
+    temp_im = im.copy()
+    overlay = temp_im.copy()
+    scale = (temp_im.shape[0]-y_offset)/5.7
 
-    cv2.imshow("Path", im)
-    cv2.waitKey(0)
-    # cv2.imwrite("img/path.png", im)
+    path = [(int(x*scale), int(y*scale)+y_offset) for y, x in path]
+
+    for i in range(len(path) - 1):
+        cv2.line(overlay, path[i], path[i+1], (133, 109, 194), 8)
+
+    cv2.circle(overlay, path[0], 3, (82, 125, 61), 8)
+    if path[0] != path[-1]:
+        cv2.circle(overlay, path[-1], 3, (122, 73, 48), 8)
+
+    a = 0.9
+    image_new = cv2.addWeighted(overlay, a, temp_im, 1-a, 0) 
+
+    if return_im:
+        return image_new
+    else:
+        cv2.imshow("Path", image_new)
+        cv2.waitKey(0)
+
+def generate_video(im, possible_words):
+    im = cv2.copyMakeBorder(im, 60, 0, 0, 0, cv2.BORDER_CONSTANT, value=[0, 0, 0])
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    pt = 1.5
+    thk = 4
+    white = (255, 255, 255)
+
+    video = cv2.VideoWriter('solutions.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 24, (im.shape[1], im.shape[0]), True)
+
+    for word in possible_words:
+        temp_im = im.copy()
+        width = temp_im.shape[1]
+
+        temp_im = cv2.putText(temp_im, str(word[0].upper()), (int(width//26.1), 45), font, pt, white, thk)
+        temp_im = cv2.putText(temp_im, str(word[1]), (int(width//1.2), 45), font, pt, white, thk)
+
+        temp_im = draw_path(temp_im, word[2], return_im=True, y_offset=60)
+
+        video.write(temp_im)
+
+    video.release()
 
 if __name__ == "__main__":
-    print(parse_game("img/image.png"))
+    im = get_image()
+    print(parse_game(im))
