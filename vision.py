@@ -2,10 +2,14 @@ import cv2
 import numpy as np
 import pytesseract
 from scipy import stats
+from PIL import ImageGrab
 
-def parse_game(file_path):
+def get_image():
+    pil_im = ImageGrab.grabclipboard()
+    return cv2.cvtColor(np.array(pil_im), cv2.COLOR_RGB2BGR)
+
+def parse_game(im):
     ## read image and convert to binary
-    im = cv2.imread(file_path)
     im_gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY) 
     _, im_bw = cv2.threshold(im_gray, 250, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
     ##
@@ -102,15 +106,15 @@ def parse_game(file_path):
 
     return plain_letters, bonuses
 
-def draw_path(file_path, path):
-    im = cv2.imread(file_path)
-
+def draw_path(im, path):
     scale = im.shape[0]//6
     path = [(int(y*scale), int(x*scale)) for x, y in path]
     for i in range(len(path) - 1):
         cv2.line(im, path[i], path[i+1], (0, 0, 255), 10)
 
-    cv2.imwrite("img/path.png", im)
+    cv2.imshow("Path", im)
+    cv2.waitKey(0)
+    # cv2.imwrite("img/path.png", im)
 
 if __name__ == "__main__":
     print(parse_game("img/image.png"))
