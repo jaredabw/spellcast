@@ -4,6 +4,9 @@ from spellcast import Solver
 # TODO:
 if __name__ == "__main__":
     im = get_image()
+    if im is None:
+        print("No image found in clipboard. Exiting...")
+        exit()
     letters, bonuses = parse_game(im)
 
     solver = Solver(letters, bonuses)

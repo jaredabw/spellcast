@@ -6,6 +6,8 @@ from PIL import ImageGrab
 
 def get_image():
     pil_im = ImageGrab.grabclipboard()
+    if pil_im is None:
+        return None
     return cv2.cvtColor(np.array(pil_im), cv2.COLOR_RGB2BGR)
 
 def parse_game(im):
