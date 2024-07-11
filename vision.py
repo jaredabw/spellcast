@@ -1,16 +1,21 @@
 import cv2
 import numpy as np
 import pytesseract
+import subprocess
+import tempfile
+import os
 from scipy import stats
 from PIL import ImageGrab
 
 def get_image():
+    print("Grabbing image...")
     pil_im = ImageGrab.grabclipboard()
     if pil_im is None:
         return None
     return cv2.cvtColor(np.array(pil_im), cv2.COLOR_RGB2BGR)
 
 def parse_game(im):
+    print("Reading image...")
     ## read image and convert to binary
     im_gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY) 
     _, im_bw = cv2.threshold(im_gray, 250, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
@@ -72,6 +77,8 @@ def parse_game(im):
     letters = sorted(letters, key=lambda x: (x[1][1], x[1][0]))
     letters = [l for l in letters if l[0] != ""]
     plain_letters = "".join([l[0] for l in letters])
+
+    print("Found letters:", plain_letters)
     
     width_mode = stats.mode([w for _, _, w, _ in xywh]).mode
 
@@ -129,13 +136,15 @@ def draw_path(im, path, return_im=False, y_offset=0):
         cv2.waitKey(0)
 
 def generate_video(im, possible_words):
+    print("Generating video...")
     im = cv2.copyMakeBorder(im, 60, 0, 0, 0, cv2.BORDER_CONSTANT, value=[0, 0, 0])
     font = cv2.FONT_HERSHEY_SIMPLEX
     pt = 1.5
     thk = 4
     white = (255, 255, 255)
 
-    video = cv2.VideoWriter('solutions.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 24, (im.shape[1], im.shape[0]), True)
+    name = os.path.join(tempfile.gettempdir(), f"{os.urandom(24).hex()}.mp4") # temporary file
+    video = cv2.VideoWriter(name, cv2.VideoWriter_fourcc(*'mp4v'), 24, (im.shape[1], im.shape[0]), True)
 
     for word in possible_words:
         temp_im = im.copy()
@@ -149,6 +158,8 @@ def generate_video(im, possible_words):
         video.write(temp_im)
 
     video.release()
+    subprocess.run(f"ffmpeg -y -i {name} -vcodec libx264 solutions.mp4", stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    print("Video generated! Saved to solutions.mp4.")
 
 if __name__ == "__main__":
     im = get_image()

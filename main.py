@@ -14,7 +14,7 @@ if __name__ == "__main__":
     best = solver.find_best()
     print(f"\nBest word: {best[0].upper()} | Score: {best[1]} | Path: {best[2]}\n")
 
-    draw_path(im, best[2])
+    # draw_path(im, best[2])
 
     generate_video(im, solver.possible_words)
 
